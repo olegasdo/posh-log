@@ -17,7 +17,13 @@ function Write-Log{
     #>
     [CmdletBinding(DefaultParametersetName='None')] 
     param(
-        [Parameter(ParameterSetName='LogToFile',Mandatory=$true)]
+        [Parameter(Mandatory=$false)]
+        [string]$LogMessage="LOG",
+        [Parameter(Mandatory=$false)]
+        [string]$LogMessageSeparator=" --- ",
+        [Parameter(Mandatory=$false)]
+        [string]$DateTimeFormat="yyyy-MM-dd HH:mm:ss.fff",
+        [Parameter(ParameterSetName='LogToFile',Mandatory=$false)]
         [switch]$LogToFile=$false,
         [Parameter(ParameterSetName='LogToFile',Mandatory=$false)]
         [string]$LogFileName="posh-log.log",
@@ -27,11 +33,13 @@ function Write-Log{
 
     )
     BEGIN {
-        write-verbose "Starting Write-Log"
+        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [BEGIN  ] Starting: $($MyInvocation.Mycommand)"  
     }
 	PROCESS {
-        "testas" | Out-File -FilePath "$LogFileDir\$LogFileName" -Append
+        "$((get-date).ToString($DateTimeFormat)) $LogMessageSeparator$LogMessage$LogMessageSeparator" | Out-File -FilePath "$LogFileDir\$LogFileName" -Append
     }
-	END {}    
+	END {
+        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [END    ] Ending: $($MyInvocation.Mycommand)"
+    }    
 }
 Export-ModuleMember -Function 'Write-Log'
