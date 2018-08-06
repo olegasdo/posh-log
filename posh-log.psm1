@@ -18,7 +18,11 @@ function Write-Log{
     [CmdletBinding(DefaultParametersetName='None')] 
     param(
         [Parameter(Mandatory=$false)]
-        [string]$LogMessage="LOG",
+        [string]$Message="ping",
+        [Parameter(Mandatory=$false)]
+        [switch]$LogToScreen=$true,
+        [Parameter(Mandatory=$false)]
+        [string]$LogTag="LOG",
         [Parameter(Mandatory=$false)]
         [string]$LogMessageSeparator=" --- ",
         [Parameter(Mandatory=$false)]
@@ -33,13 +37,24 @@ function Write-Log{
 
     )
     BEGIN {
-        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [BEGIN  ] Starting: $($MyInvocation.Mycommand)"  
+        if (-not $PSBoundParameters.ContainsKey('Verbose'))
+        {
+            $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+        }
+        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [BEGIN  ] Starting: $($MyInvocation.Mycommand) function"  
     }
 	PROCESS {
-        "$((get-date).ToString($DateTimeFormat)) $LogMessageSeparator$LogMessage$LogMessageSeparator" | Out-File -FilePath "$LogFileDir\$LogFileName" -Append
+        Write-Verbose "$((get-date).ToString($DateTimeFormat)) $LogMessageSeparator$LogTag$LogMessageSeparator$Message" 
+        if ($LogToFile) {
+            "$((get-date).ToString($DateTimeFormat)) $LogMessageSeparator$LogTag$LogMessageSeparator$Message" | Out-File -FilePath "$LogFileDir\$LogFileName" -Append    
+        } 
+        if ($LogToScreen){
+            Write-Host "$((get-date).ToString($DateTimeFormat)) $LogMessageSeparator$LogTag$LogMessageSeparator$Message"
+        }
+        
     }
 	END {
-        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [END    ] Ending: $($MyInvocation.Mycommand)"
+        Write-Verbose "$((get-date).ToString($DateTimeFormat)) [END    ] Ending: $($MyInvocation.Mycommand) function"
     }    
 }
 Export-ModuleMember -Function 'Write-Log'
